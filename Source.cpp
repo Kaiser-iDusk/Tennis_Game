@@ -57,6 +57,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
     while (running) {
         // Input
         MSG msg;
+
+        for (int i = 0; i < BUTTON_COUNT; i++) {
+            input.buttons[i].is_changed = false;
+        }
+
         while (PeekMessageW(&msg, hwnd, 0, 0, PM_REMOVE)) {
 
             switch (msg.message) {
@@ -82,7 +87,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
 
         // Simulate
         clear_screen(0xff5500);
-        draw_rect(0.0, 0.0, 20.0, 5.0, 0x00ff18);
+
+        if(input.buttons[BUTTON_UP].is_down)
+            draw_rect(0.0, 0.0, 20.0, 5.0, 0x00ff18);
 
         // Render
         StretchDIBits(hdc, 0, 0, render_state.w, render_state.h, 0, 0, render_state.w, render_state.h, render_state.mem, &render_state.bmi, DIB_RGB_COLORS, SRCCOPY);
