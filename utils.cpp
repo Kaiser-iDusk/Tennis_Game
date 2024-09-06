@@ -1,5 +1,4 @@
 #define global_variable static
-
 typedef unsigned int u32;
 
 inline int clamp(int mini, int val, int maxi) {

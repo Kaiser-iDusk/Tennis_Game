@@ -16,6 +16,12 @@ global_variable bool running = true;
 #include "renderer.cpp"
 #include "game_engine.cpp"
 
+#define process_button(b, vk, isdown) \
+case vk: {\
+    input.buttons[b].is_down = isdown; \
+    input.buttons[b].is_changed = true; \
+}break;
+
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow)
@@ -72,22 +78,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
                     bool is_down = ((msg.lParam & (1 << 31)) == 0);
 
                     switch (vk_code) {
-                        case VK_UP: {
-                            input.buttons[BUTTON_UP].is_down = is_down;
-                            input.buttons[BUTTON_UP].is_changed = true;
-                        }break;
-                        case VK_DOWN: {
-                            input.buttons[BUTTON_DOWN].is_down = is_down;
-                            input.buttons[BUTTON_DOWN].is_changed = true;
-                        }break;
-                        case VK_LEFT: {
-                            input.buttons[BUTTON_LEFT].is_down = is_down;
-                            input.buttons[BUTTON_LEFT].is_changed = true;
-                        }break;
-                        case VK_RIGHT: {
-                            input.buttons[BUTTON_RIGHT].is_down = is_down;
-                            input.buttons[BUTTON_RIGHT].is_changed = true;
-                        }break;
+                        process_button(BUTTON_UP, VK_UP, is_down);
+                        process_button(BUTTON_DOWN, VK_DOWN, is_down);
+                        process_button(BUTTON_LEFT, VK_LEFT, is_down);
+                        process_button(BUTTON_RIGHT, VK_RIGHT, is_down);
                     }
                 }break;
                 default: {
