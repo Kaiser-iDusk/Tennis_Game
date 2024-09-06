@@ -14,6 +14,7 @@ global_variable bool running = true;
 
 #include "input.cpp"
 #include "renderer.cpp"
+#include "game_engine.cpp"
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -65,8 +66,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
         while (PeekMessageW(&msg, hwnd, 0, 0, PM_REMOVE)) {
 
             switch (msg.message) {
-                case WM_KEYDOWN:
-                case WM_KEYUP: {
+                case WM_KEYUP:
+                case WM_KEYDOWN: {
                     u32 vk_code = (u32)msg.wParam;
                     bool is_down = ((msg.lParam & (1 << 31)) == 0);
 
@@ -74,6 +75,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
                         case VK_UP: {
                             input.buttons[BUTTON_UP].is_down = is_down;
                             input.buttons[BUTTON_UP].is_changed = true;
+                        }break;
+                        case VK_DOWN: {
+                            input.buttons[BUTTON_DOWN].is_down = is_down;
+                            input.buttons[BUTTON_DOWN].is_changed = true;
+                        }break;
+                        case VK_LEFT: {
+                            input.buttons[BUTTON_LEFT].is_down = is_down;
+                            input.buttons[BUTTON_LEFT].is_changed = true;
+                        }break;
+                        case VK_RIGHT: {
+                            input.buttons[BUTTON_RIGHT].is_down = is_down;
+                            input.buttons[BUTTON_RIGHT].is_changed = true;
                         }break;
                     }
                 }break;
@@ -86,10 +99,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
         }
 
         // Simulate
-        clear_screen(0xff5500);
-
-        if(input.buttons[BUTTON_UP].is_down)
-            draw_rect(0.0, 0.0, 20.0, 5.0, 0x00ff18);
+        simulate_game(&input);
 
         // Render
         StretchDIBits(hdc, 0, 0, render_state.w, render_state.h, 0, 0, render_state.w, render_state.h, render_state.mem, &render_state.bmi, DIB_RGB_COLORS, SRCCOPY);
