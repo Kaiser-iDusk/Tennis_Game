@@ -8,6 +8,9 @@ global_variable float player_v_y = 0.f;
 global_variable float ai_pos_x = 0.f, ai_pos_y = 0.f;
 global_variable float ai_v_y = 0.f;
 
+global_variable float ball_pos_x = 0.f, ball_pos_y = 0.f;
+global_variable float ball_v_x = 0.f, ball_v_y = 0.f;
+
 static void simulate_game(struct Input* input, float dt) {
     clear_screen(0xdecea9);
 
@@ -18,6 +21,7 @@ static void simulate_game(struct Input* input, float dt) {
     // borders and props
     float border_thickness = 6.f;
 
+        // border
     draw_rect(0.f, (render_state.h / 2.f), (render_state.w / 2.f), border_thickness, 0xff0000);
     draw_rect(0.f, -(render_state.h / 2.f), (render_state.w / 2.f), border_thickness, 0xff0000);
     draw_rect((render_state.w / 2.f), 0.f, border_thickness, (render_state.h / 2.f), 0xff0000);
@@ -42,13 +46,16 @@ static void simulate_game(struct Input* input, float dt) {
     ai_acc_y -= (ai_v_y * 1.11f);
 
     // motion equations
+        //player
     player_pos_y += ((player_v_y * dt) + (player_acc_y * dt * dt * 0.5));
     player_v_y += (player_acc_y * dt);
-
+        
+        // ai
     ai_pos_y += ((ai_v_y * dt) + (ai_acc_y * dt * dt * 0.5));
     ai_v_y += (ai_acc_y * dt);
     
     // collision mechanics
+        // player
     if (player_pos_y + 75.f > (render_state.h / 2.f) - border_thickness) {
         player_pos_y = (render_state.h / 2.f) - border_thickness - 75.f;
         player_v_y *= -.33f;
@@ -57,7 +64,7 @@ static void simulate_game(struct Input* input, float dt) {
         player_pos_y = -(render_state.h / 2.f) + border_thickness + 75.f;
         player_v_y *= -.33f;
     }
-
+        // ai
     if (ai_pos_y + 75.f > (render_state.h / 2.f) - border_thickness) {
         ai_pos_y = (render_state.h / 2.f) - border_thickness - 75.f;
         ai_v_y *= -.33f;
@@ -68,6 +75,12 @@ static void simulate_game(struct Input* input, float dt) {
     }
 
     // render updated states
+        // player
     draw_rect(player_pos_x, player_pos_y, 15.0, 75.0, 0x00db02);
+        
+        // ai
     draw_rect(ai_pos_x, ai_pos_y, 15.0, 75.0, 0xff00ff);
+        
+        // ball
+    draw_rect(ball_pos_x, ball_pos_y, 5.5, 5.5, 0x000000);
 }
