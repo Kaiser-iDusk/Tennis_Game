@@ -16,12 +16,6 @@ global_variable bool running = true;
 #include "renderer.cpp"
 #include "game_engine.cpp"
 
-#define process_button(b, vk, isdown) \
-case vk: {\
-    input.buttons[b].is_down = isdown; \
-    input.buttons[b].is_changed = true; \
-}break;
-
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow)
@@ -61,6 +55,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
 
     Input input = {};
 
+    float delta_time = 0.016666f;
+    LARGE_INTEGER frame_begin;
+    QueryPerformanceCounter(&frame_begin);
+
+    float perf_freq;
+    {
+        LARGE_INTEGER perf;
+        QueryPerformanceFrequency(&perf);
+        perf_freq = (float)perf.QuadPart;
+    }
+
     while (running) {
         // Input
         MSG msg;
@@ -75,13 +80,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
                 case WM_KEYUP:
                 case WM_KEYDOWN: {
                     u32 vk_code = (u32)msg.wParam;
-                    bool is_down = ((msg.lParam & (1 << 31)) == 0);
+                    bool is_down_val = ((msg.lParam & (1 << 31)) == 0);
 
                     switch (vk_code) {
-                        process_button(BUTTON_UP, VK_UP, is_down);
-                        process_button(BUTTON_DOWN, VK_DOWN, is_down);
-                        process_button(BUTTON_LEFT, VK_LEFT, is_down);
-                        process_button(BUTTON_RIGHT, VK_RIGHT, is_down);
+                        case VK_UP: {
+                            input.buttons[BUTTON_UP].is_down = is_down_val; 
+                            input.buttons[BUTTON_UP].is_changed = true; 
+                        }break;
+                        case VK_DOWN: {
+                            input.buttons[BUTTON_DOWN].is_down = is_down_val;
+                            input.buttons[BUTTON_DOWN].is_changed = true;
+                        }break;
+                        case 0x57: {
+                            input.buttons[BUTTON_W].is_down = is_down_val;
+                            input.buttons[BUTTON_W].is_changed = true;
+                        }break;
+                        case 0x53: {
+                            input.buttons[BUTTON_S].is_down = is_down_val;
+                            input.buttons[BUTTON_S].is_changed = true;
+                        }break;
+
                     }
                 }break;
                 default: {
@@ -93,10 +111,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
         }
 
         // Simulate
-        simulate_game(&input);
+        simulate_game(&input, delta_time);
 
         // Render
         StretchDIBits(hdc, 0, 0, render_state.w, render_state.h, 0, 0, render_state.w, render_state.h, render_state.mem, &render_state.bmi, DIB_RGB_COLORS, SRCCOPY);
+    
+        LARGE_INTEGER frame_end;
+        QueryPerformanceCounter(&frame_end);
+        delta_time = (float)(frame_end.QuadPart - frame_begin.QuadPart) / perf_freq;
+        frame_begin = frame_end;
     }
 
     return 0;
