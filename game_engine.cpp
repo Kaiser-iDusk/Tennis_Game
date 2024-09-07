@@ -2,7 +2,7 @@
 #define pressed(b) (input->buttons[b].is_down && input->buttons[b].is_changed)
 #define released(b) (!input->buttons[b].is_down && input->buttons[b].is_changed)
 
-global_variable float player_pos_x = 0.f, player_pos_y = 0.f, speed = 150.f;
+global_variable float player_pos_x = 0.f, player_pos_y = 0.f; // depreceatd speed = 150.f;
 global_variable float player_v_y = 0.f;
 
 global_variable float ai_pos_x = 0.f, ai_pos_y = 0.f;
@@ -15,13 +15,15 @@ static void simulate_game(struct Input* input, float dt) {
     player_pos_x = 0.9 * (render_state.w / 2.f);
     ai_pos_x = -0.9 * (render_state.w / 2.f);
 
-    // borders
-    draw_rect(0.f, (render_state.h / 2.f), (render_state.w / 2.f), 6.f, 0xff0000);
-    draw_rect(0.f, -(render_state.h / 2.f), (render_state.w / 2.f), 6.f, 0xff0000);
-    draw_rect((render_state.w / 2.f), 0.f, 6.f, (render_state.h / 2.f), 0xff0000);
-    draw_rect(-(render_state.w / 2.f), 0.f, 6.f, (render_state.h / 2.f), 0xff0000);
+    // borders and props
+    float border_thickness = 6.f;
 
-    // game-net
+    draw_rect(0.f, (render_state.h / 2.f), (render_state.w / 2.f), border_thickness, 0xff0000);
+    draw_rect(0.f, -(render_state.h / 2.f), (render_state.w / 2.f), border_thickness, 0xff0000);
+    draw_rect((render_state.w / 2.f), 0.f, border_thickness, (render_state.h / 2.f), 0xff0000);
+    draw_rect(-(render_state.w / 2.f), 0.f, border_thickness, (render_state.h / 2.f), 0xff0000);
+
+        // game-net
     draw_rect(0.f, 0.f, 4.f, (render_state.h / 2.f), 0xffffff);
 
     // physics
@@ -46,6 +48,26 @@ static void simulate_game(struct Input* input, float dt) {
     ai_pos_y += ((ai_v_y * dt) + (ai_acc_y * dt * dt * 0.5));
     ai_v_y += (ai_acc_y * dt);
     
+    // collision mechanics
+    if (player_pos_y + 75.f > (render_state.h / 2.f) - border_thickness) {
+        player_pos_y = (render_state.h / 2.f) - border_thickness - 75.f;
+        player_v_y *= -.33f;
+    }
+    else if (player_pos_y - 75.f < -(render_state.h / 2.f) + border_thickness) {
+        player_pos_y = -(render_state.h / 2.f) + border_thickness + 75.f;
+        player_v_y *= -.33f;
+    }
+
+    if (ai_pos_y + 75.f > (render_state.h / 2.f) - border_thickness) {
+        ai_pos_y = (render_state.h / 2.f) - border_thickness - 75.f;
+        ai_v_y *= -.33f;
+    }
+    else if (ai_pos_y - 75.f < -(render_state.h / 2.f) + border_thickness) {
+        ai_pos_y = -(render_state.h / 2.f) + border_thickness + 75.f;
+        ai_v_y *= -.33f;
+    }
+
+    // render updated states
     draw_rect(player_pos_x, player_pos_y, 15.0, 75.0, 0x00db02);
     draw_rect(ai_pos_x, ai_pos_y, 15.0, 75.0, 0xff00ff);
 }
